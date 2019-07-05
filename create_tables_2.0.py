@@ -9,7 +9,7 @@ from datetime import datetime
 project_data = "./data/customers_table.csv"
 
 # imports '[W] Scope Improvements' data
-improvements_data = "./data/improvements_table.csv"
+improvements_data = "./data/improvement_table.csv"
 
 ############################## PARSING DATA ##############################
 
