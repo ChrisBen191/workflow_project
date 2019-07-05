@@ -2,7 +2,7 @@
 ***
 
 ![Image of Workflow Chart]
-(https://unsplash.com/photos/6EnTPvPPL6I)
+(https://images.unsplash.com/photo-1543286386-713bdd548da4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80)
 
 ## Establish the process for a Project, 
 ### ***...from Claim Date to Close Date...***
