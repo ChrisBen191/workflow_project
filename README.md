@@ -8,7 +8,20 @@
 
 Can the influence of each Teammate involved in the customer workflow be measured? What projects are being held up in the customer pipeline? What common factors exist for projects above the average turnaround time? 
 
-### Files required in 'data' folder:
-- [TVA] Customers Table Audit *(renamed 'customers_table.csv')* 
-- [W] Scope Improvements *(renamed 'improvement_table.csv')*
-- [W] Teammate Audit *(renamed 'teammate_table.csv')*
+### Files in the 'data' folder:
+- **[TVA] Customers Table Audit *(renamed 'all_projects.csv')***
+
+This dataset contains all project records for the season, even if the project was marked 'Dead' 
+
+---
+
+- **[W] Scope Improvements *(renamed 'improvement_table.csv')***
+
+This dataset contains all 'scope rejection' records for the season, even if the project was marked 'Dead'
+
+---
+
+- **[W] Teammate Audit *(renamed 'teammate_table.csv')***
+
+This dataset contains all Teammates involved in jobs going into production; this dataset cannot be used for 'Dead' records because the BCs and OBs are unassigned from 'Dead' jobs.
+
