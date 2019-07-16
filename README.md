@@ -17,6 +17,10 @@ This dataset contains projects submitted prior to 7/15/2019, even if the project
 
 The second dataset contains projects where the BC estimate was created after 7/15/2019. This was the date when the process switch was made to allow the BC estimate to be created before the OB scope calculataor. 
 
+- **[TVA] Orders Table Audit *(renamed 'all_production_projects.csv')*** 
+
+This dataset contains projects in production that have 'notified the Homeowner' of their 'Roof Start' date. This is currently in progress.
+
 ---
 
 - **[TVA] FTA Scope Analysis *(renamed 'improvement_table.csv')***
