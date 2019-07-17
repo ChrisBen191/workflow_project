@@ -27,6 +27,8 @@ This dataset contains projects in production that have 'notified the Homeowner' 
 
 This dataset contains all 'scope rejection' records for the season, even if the project was marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
 
+*Currently need to create 'scope rejection' count field*
+
 ---
 
 - **[TVA] Teammate Analysis *(renamed 'teammate_table.csv')***
