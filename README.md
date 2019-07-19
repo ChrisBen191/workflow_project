@@ -8,26 +8,27 @@
 
 Can the influence of each Teammate involved in the customer workflow be measured? What projects are being held up in the customer pipeline? What common factors exist for projects above the average turnaround time? 
 
-### Files in the 'data' folder:
-- **[TVA] Workflow Analysis *(renamed 'workflow_analysis.csv')***
+### Required Datasets:
+- **[TVA] Workflow Analysis *(rename 'workflow_analysis.csv')***
 
 Dataset that contains the datestamps recorded on a record as it progresses through the customer pipeline; this includes projects that have been marked 'Dead'.
 
-- **[TVA] Project Workflow Analysis *(renamed 'project_workfow_analysis.csv')*** 
+---
+- **[TVA] Project Workflow Analysis *(rename 'project_workfow_analysis.csv')*** 
 
-This dataset contains projects in production that have 'notified the Homeowner' of their 'Roof Start' date. This is currently in progress.
+This dataset contains the datestamps recorded on a record as it progresses through the production pipeline.
+
+Due to database limitations, the 'supplier name' and 'building department' data is collected in this dataset to prevent loss of information.
 
 ---
 
-- **[TVA] FTA Scope Analysis *(renamed 'improvement_table.csv')***
+- **[TVA] FTA Scope Analysis *(rename 'rejection_table.csv')***
 
-This dataset contains all 'scope rejection' records for the season, even if the project was marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
-
-*Currently need to create 'scope rejection' count field*
+This dataset contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
 
 ---
 
-- **[TVA] Teammate Analysis *(renamed 'teammate_table.csv')***
+- **[TVA] Project Info Analysis *(rename 'info_table.csv')***
 
-This dataset contains all Teammates involved in jobs going into production. This dataset cannot be used for 'Dead' records because the BCs and OBs are unassigned from 'Dead' jobs.
+This dataset contains all Teammates involved in jobs going into production. Due to limiatations of the database, this dataset cannot be used for any analysis including 'Dead' records because the BCs and OBs are unassigned from 'Dead' jobs in the current 'Audit Dead Jobs' process.
 
