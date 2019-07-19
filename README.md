@@ -9,15 +9,11 @@
 Can the influence of each Teammate involved in the customer workflow be measured? What projects are being held up in the customer pipeline? What common factors exist for projects above the average turnaround time? 
 
 ### Files in the 'data' folder:
-- **[TVA] Q2 Workflow Analysis *(renamed 'all_projects.csv')***
+- **[TVA] Workflow Analysis *(renamed 'workflow_analysis.csv')***
 
-This dataset contains projects submitted prior to 7/15/2019, even if the project was marked 'Dead'. These projects were submitted when the OB scope calculator was created before the BC estimate. 
+Dataset that contains the datestamps recorded on a record as it progresses through the customer pipeline; this includes projects that have been marked 'Dead'.
 
-- **[TVA] Q3 Workflow Analysis *(renamed 'all_projects2.csv')*** 
-
-The second dataset contains projects where the BC estimate was created after 7/15/2019. This was the date when the process switch was made to allow the BC estimate to be created before the OB scope calculataor. 
-
-- **[TVA] Orders Table Audit *(renamed 'all_production_projects.csv')*** 
+- **[TVA] Project Workflow Analysis *(renamed 'project_workfow_analysis.csv')*** 
 
 This dataset contains projects in production that have 'notified the Homeowner' of their 'Roof Start' date. This is currently in progress.
 
