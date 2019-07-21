@@ -22,13 +22,29 @@ Due to database limitations, the 'supplier name' and 'building department' data 
 
 ---
 
+- **[TVA] Project Info Analysis *(rename 'info_table.csv')***
+
+This dataset contains all Teammates involved in jobs going into production. Due to limiatations of the database, this dataset cannot be used for any analysis including 'Dead' records because the BCs and OBs are unassigned from 'Dead' jobs in the current 'Audit Dead Jobs' process.
+
+---
+
 - **[TVA] FTA Scope Analysis *(rename 'rejection_table.csv')***
 
 This dataset contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
 
 ---
 
-- **[TVA] Project Info Analysis *(rename 'info_table.csv')***
+- **[TVA] GM Change Order Analysis *(rename 'change_orders.csv')***
 
-This dataset contains all Teammates involved in jobs going into production. Due to limiatations of the database, this dataset cannot be used for any analysis including 'Dead' records because the BCs and OBs are unassigned from 'Dead' jobs in the current 'Audit Dead Jobs' process.
+This dataset contains all 'change order' records for the season. They contain all change orders for a project, with some projects having multiple change orders.
+
+---
+
+- **[TVA] GM Labor Order Adjustment Analysis *(rename 'labor_adjustments.csv')***
+
+This dataset contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
+
+---
+
+
 
