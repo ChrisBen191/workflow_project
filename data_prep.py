@@ -50,7 +50,20 @@ project_df = pd.read_csv(
 # having trouble recognizing 'coc' date as 'datetime', manually converted the dtype.
 project_df['COC Rcvd Date [A]'] = pd.to_datetime(project_df['COC Rcvd Date [A]'], errors='coerce')
 
+# storing all floored timestamps in a list
+floored_ob_order_builds = []
 
+# iterating over the 'project_df' to 'floor' or zero out each timestamp
+for index, row in project_df.iterrows():
+  
+  # zeroing out the hours and minutes, appending value to 'floored' list
+  ob_order_builds = row['[OB] Completed'].replace(hour=0, minute=0)
+  floored_ob_order_builds.append(ob_order_builds)
+
+# adding the floored list to the 'project_df'
+project_df['[OB] Completed'] = floored_ob_order_builds
+
+#########################
 ## Project Workflow Analysis
 production_df = pd.read_csv(
   all_production_data, dtype={
@@ -75,16 +88,43 @@ production_df = pd.read_csv(
   ]
 )
 
+# storing all floored timestamps in a list
+floored_pa_oa_processed = []
+
+# iterating over the 'production_df' to 'floor' or zero out each timestamp
+for index, row in production_df.iterrows():
+  
+  # zeroing out the hours and minutes, appending value to 'floored' list
+  pa_oa_processed = row['OA Date'].replace(hour=0, minute=0)
+  floored_pa_oa_processed.append(pa_oa_processed)
+
+# adding the floored list to the 'production_df'
+production_df['OA Date'] = floored_pa_oa_processed
+
 # data to be moved to the 'info' df
 moving_data_df = production_df[['Job #','Supplier Name', 'Building Department', 'Permit Req?']]
 del production_df['Supplier Name'], production_df['Building Department'], production_df['Permit Req?']
 
+#########################
 ## FTA Scope Analysis
 rejection_info_df = pd.read_csv(
   rejection_data,dtype={
     'Claim #': str, 
     'Job #': str},
   parse_dates=['Created'])
+
+# storing all floored timestamps in a list
+floored_fta_rejections = []
+
+# iterating over the 'rejection_info_df' to 'floor' or zero out each timestamp
+for index, row in rejection_info_df.iterrows():
+  
+  # zeroing out the hours and minutes, appending value to 'floored' list
+  fta_rejections = row['Created'].replace(hour=0, minute=0)
+  floored_fta_rejections.append(fta_rejections)
+
+# adding the floored list to the 'rejection_info_df'
+rejection_info_df['Created'] = floored_fta_rejections
 
 ### Latest Rejection
 # 'idmax()' of the 'Created' column provides the most current rejection date
@@ -111,21 +151,49 @@ for index, row in rejection_count_df.iterrows():
 rejection_count_df["Multi-rejected"] = multi_reject_list
 rejection_count_df = rejection_count_df.rename(columns={"Created": "Scope Rejections"})
 
+#########################
 ## GM Change Order Analysis
 change_order_df = pd.read_csv(
     change_order_data,dtype={'Job #':str},parse_dates=['Created'])
 
-### Change Order Date
+# storing all floored timestamps in a list
+floored_change_order = []
+
+# iterating over the 'change_order_df' to 'floor' or zero out each timestamp
+for index, row in change_order_df.iterrows():
+  
+  # zeroing out the hours and minutes, appending value to 'floored' list
+  gm_change_order = row['Created'].replace(hour=0, minute=0)
+  floored_change_order.append(gm_change_order)
+
+# adding the floored list to the 'change_order_df'
+change_order_df['Created'] = floored_change_order
+
+## Change Order Date
 co_date_df = change_order_df.loc[change_order_df.groupby('Job #')['Created'].idxmax()]
 co_date_df = co_date_df.rename(columns={"Created": "GM Change Order Date"})
 
-### Change Order Count
+## Change Order Count
 co_count_df = (change_order_df.groupby("Job #").count())
 co_count_df.reset_index(inplace=True)
 co_count_df = co_count_df.rename(columns={"Created": "Change Orders"})
 
+#########################
 ## GM Labor Adjustment Analysis
 labor_adjustment_df = pd.read_csv(labor_adjustment_data, dtype={'Order ID': str}, parse_dates=['Created'])
+
+# storing all floored timestamps in a list
+floored_labor_adjustment = []
+
+# iterating over the 'labor_adjustment_df' to 'floor' or zero out each timestamp
+for index, row in labor_adjustment_df.iterrows():
+  
+  # zeroing out the hours and minutes, appending value to 'floored' list
+  gm_labor_adjustment = row['Created'].replace(hour=0, minute=0)
+  floored_labor_adjustment.append(gm_change_order)
+
+# adding the floored list to the 'labor_adjustment_df'
+labor_adjustment_df['Created'] = floored_labor_adjustment
 
 # list to store each 'job #' from string split
 job_num_list = []
@@ -311,7 +379,9 @@ for index, row in all_project_df.iterrows():
   # creating 'date_diff' variables for each step in the workflow
   rep_claim_date_diff = float((row['Rep Claim Collected'] - row['Rep Agreement Signed']).days)
   
+####################################################################################################
   # if the bc estimate was created prior to July 16th...
+
   if row['BC Estimate Completed'] <= datetime(2019, 7, 15):    
     
     # and if the record did NOT had the FTA Scope Rejected...
@@ -328,6 +398,8 @@ for index, row in all_project_df.iterrows():
       # then compare the 'FTA Scope rejected' date field
       fta_date_diff = (row['FTA Scope Rejected'] - row['Rep Claim Collected']).days
       ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Rejected']).days
+      
+      
       bc_estimate_date_diff = (row['BC Estimate Completed'] - row['OB Scope Completed']).days
       sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
       
@@ -367,35 +439,62 @@ for index, row in all_project_df.iterrows():
       ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Rejected']).days
       sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
   
-  # these dates do not have any special circumstances and can be directly compared
-  bc_approval_date_diff = (row['BC Approved for Production'] - row['Sup Job Submitted']).days
-  ob_orderbuild_date_diff = (row['OB Order Built'] - row['BC Approved for Production']).days
-  gm_create_order_date_diff = (row['GM Order Processed'] - row['OB Order Built']).days
-  pa_oa_processed_date_diff = (row['PA OA Processed'] - row['GM Order Processed']).days
+####################################################################################################
+  # due to manual OA 'Processed' and 'Invoice' date fields, PAs have been recording false dates...
+
+  if row['PA OA Invoiced'] < row['PA OA Processed']:
+
+    # ...which provide no advantage to the project.
+    row['PA OA Invoiced'] = row['PA OA Processed'] + timedelta(days=1)
+  
+  # OAs can't be invoiced before they have been processed (approved)
   pa_invoice_date_diff = (row['PA OA Invoiced'] - row['PA OA Processed']).days
   
-  # due to manual 'Approved for inspection' date field, GMs have been recording false dates...
+####################################################################################################
+  # due to manual 'Approved for inspection' (R4F) date field, GMs have been recording false dates...
+
   if row['GM Approved for Inspection'] < row['Roof End']:
+
     # ...which provide no advantage to the project; those will be reset to the day after the build.
     row['GM Approved for Inspection'] = row['Roof End'] + timedelta(days=1)
   
-  # with correct 'gm approved' dates, the gm and ra inspection days will be more accurate
+  # roofs can't be approved for inspection prior to the roof being built
   gm_approval_date_diff = (row['GM Approved for Inspection'] - row['Roof End']).days
-  ra_requested_inspection_date_diff = (row['RA Inspection Requested'] - row['GM Approved for Inspection']).days
+
+####################################################################################################
+  # due to manual 'COC Collected' (COC Rcvd [A]) date field, SAs have been recording false dates...
+
+  if row['Rep COC Collected'] < row['Roof End']:
+
+    # ...these will be reset for after the build.
+    row['Rep COC Collected'] = row['Roof End'] + timedelta(days=1)
   
-  # these dates do not have any special circumstances and can be directly compared
+  # coc's can't be collected until after the roof is built, not before
   rep_coc_collected_date_diff = (row['Rep COC Collected'] - row['Roof End']).days
+  
+####################################################################################################
+  # these dates do not have any special circumstances and can be directly compared
+
+  bc_approval_date_diff = (row['BC Approved for Production'] - row['Sup Job Submitted']).days
+  ob_orderbuild_date_diff = (row['OB Order Built'] - row['BC Approved for Production']).days
+  gm_create_order_date_diff = (row['GM Order Processed'] - row['OB Order Built']).days
+  ra_requested_inspection_date_diff = (row['RA Inspection Requested'] - row['GM Approved for Inspection']).days
   sa_docs_uploaded_date_diff = (row['SA Job Docs Uploaded'] - row['Rep COC Collected']).days
   bc_project_invoiced_date_diff = (row['BC Project Invoiced'] - row['SA Job Docs Uploaded']).days
   bc_project_closed_date_diff = (row['BC Project Closed'] - row['BC Project Invoiced']).days
   
+  # these dates are manual, outliers are due to incorrect / false data entry
+  pa_oa_processed_date_diff = (row['PA OA Processed'] - row['GM Order Processed']).days
+
   # these provide the lead times of tasks not directly impacting the workflow.
   pa_permit_applied_date_diff = (row['PA Permit Applied'] - row['BC Approved for Production']).days
   pa_permit_processed_date_diff = (row['PA Permit Processed'] - row['PA Permit Applied']).days
   pa_notify_delivery_date_diff = (row['Delivery Date'] - row['PA Notify of Delivery']).days
   pa_notify_start_date_diff = (row['Roof Start'] - row['PA Notify of Start']).days
   
+####################################################################################################
   # appending 'date diff' values to lists to create each df column
+  
   claim_num.append(row["Claim #"])
   branch_list.append(row['Branch'])
   claim_status_list.append(row['Claim Status'])
@@ -421,6 +520,7 @@ for index, row in all_project_df.iterrows():
   pa_notify_delivery_diff.append(pa_notify_delivery_date_diff)
   pa_notify_start_diff.append(pa_notify_start_date_diff)
   ra_request_inspection_diff.append(ra_requested_inspection_date_diff)
+####################################################################################################
 
 ## Creating 'Workflow Days' df
 days_df = pd.DataFrame({
