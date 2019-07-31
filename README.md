@@ -42,9 +42,11 @@ This dataset contains all 'change order' records for the season. They contain al
 
 - **[TVA] GM Labor Order Adjustment Analysis *(rename 'labor_adjustments.csv')***
 
-This dataset contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all rejects for a project, if it was rejected multiple times.
+This dataset contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all labor adjustments on a project, with some project having multiple change orders
 
 ---
 
+- **[TVA] EagleView Analysis *(rename 'eagleview_analysis.csv')***
 
+This dataset contains all 'EagleView' measurements on the season, even if the project has since been marked 'Dead'.
 
