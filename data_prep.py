@@ -11,14 +11,19 @@ from datetime import date
 
 # imports the '[TVA] Workflow Analysis' data
 all_project_data = "./data/workflow_analysis.csv"
+
 # imports the '[TVA] Project Workflow Analysis' data
 all_production_data = "./data/project_workflow_analysis.csv"
+
 # imports '[TVA] Project Info Analysis' data
 info_data = "./data/info_table.csv"
+
 # imports '[TVA] FTA Scope Analysis' data
 rejection_data = "./data/rejection_table.csv"
+
 # imports '[TVA] GM Change Order Analysis' data
 change_order_data = "./data/change_orders.csv"
+
 # imports '[TVA] GM Labor Order Adjustment Analysis' data
 labor_adjustment_data = "./data/labor_adjustments.csv"
 
@@ -27,25 +32,13 @@ labor_adjustment_data = "./data/labor_adjustments.csv"
 
 ## Workflow Analysis
 project_df = pd.read_csv(
-  all_project_data, dtype={
-    'Claim #':str,
-    'Job #':str,
-    'Branch':str,
-    'Claim Status':str},
+  all_project_data, 
+  dtype={'Claim #':str,'Job #':str,'Branch':str,'Claim Status':str},
   parse_dates=[
-    'Claim # Date',
-    'FTA Scope. Req Date',
-    'Submit for Estimate Date',
-    '[OB] Created Scope Calc',
-    '[B] Created Estimate Date',
-    'Job Submittal Date',
-    '[B] - Date Approved by BC',
-    '[OB] Completed',
-    'COC Rcvd Date [A]',
-    'Job Docs Scanned',
-    '[B] Sent Invoice Packet to Ins Co',
-    '[B] Settled with Insurance'],
-)
+    'Claim # Date','FTA Scope. Req Date','Submit for Estimate Date',
+    '[OB] Created Scope Calc','[B] Created Estimate Date','Job Submittal Date',
+    '[B] - Date Approved by BC','[OB] Completed','COC Rcvd Date [A]',
+    'Job Docs Scanned','[B] Sent Invoice Packet to Ins Co','[B] Settled with Insurance'])
 
 # having trouble recognizing 'coc' date as 'datetime', manually converted the dtype.
 project_df['COC Rcvd Date [A]'] = pd.to_datetime(project_df['COC Rcvd Date [A]'], errors='coerce')
