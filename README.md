@@ -14,7 +14,11 @@ File Name | Dataset Information
 *project_workfow_analysis.csv* | Dataset that contains the datestamps recorded on a record as it progresses through the production pipeline.
 *info_table.csv* | Dataset that contains any additional information on the record that may be revelant in forecasting (branch, building department, supplier, install crew, etc)
 *rejection_table.csv* | Dataset that contains all FTA 'scope rejection' records for the season; contains  all rejects for a project, if it was rejected multiple times.
+*oa_processed.csv* | Dataset that contains all datestamps of when the manual "OA Date" Date field was recorded in the database.
+*oa_invoiced.csv* | Dataset that contains all datestamps of when the manual "Invoice Date" Date field was recorded in the database.
 *change_orders.csv* | Dataset that contains all production 'change order' records for the season. They contain all change orders for a project, with some projects having multiple change orders.
 *labor_adjustments.csv* | Dataset that contains all 'FTA scope rejection' records for the season, even if the project has since been marked 'Dead'. They contain all labor adjustments on a project, with some project having multiple change orders
+*approved_for_inspection.csv* | Dataset that contains all datestamps of when the manual "R4F" Date field was recorded in the database.
+*coc_collected.csv* | Dataset that contains all datestamps of when the manual "COC Rcvd [A]" Date field was recorded in the database.
 *eagleview_analysis.csv* | This dataset contains all 'EagleView' measurements on the season, even if the project has since been marked 'Dead'.
 
