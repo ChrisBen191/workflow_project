@@ -38,11 +38,7 @@ approved_for_inspection_data = "./data/raw_datasets/Workflow Tracker - GM Approv
 eagleview_data = "./data/raw_datasets/[TVA] EagleView Analysis.csv"
 
 # imports the 'coc collected' SA data currently being tracked
-<<<<<<< HEAD
 coc_collected_data = "./data/raw_datasets/Workflow Tracker - Rep COC Collected.csv" 
-=======
-coc_collected_data = "./data/tracker_data/coc_collected.csv" 
->>>>>>> d6f959cdc6a79ff21248f9d1dd0c9895e592b623
 
 ########## Data Cleaning Functions ##########
 
@@ -678,94 +674,13 @@ def create_database_tables():
     workflow_table = create_workflow_database()
     info_table = create_info_database()
 
-<<<<<<< HEAD
     datestamp_table.to_csv("data/database_tables/project_table.csv", index=False)
     workflow_table.to_csv("data/database_tables/workflow_table.csv", index=False)
     info_table.to_csv("data/database_tables/project_info_table.csv", index=False)
     
     return (print(f"Database Tables Created"))
 
-
-
-def reporting_tool():
-    
-    print(f"---------------------------------------------")
-    print(f"------------- TRACKVIA DATASETS -------------")
-    print(f"---------------------------------------------")
-    
-    # these are data importing/creating reports 
-    info_data = create_project_info_table()
-    print(f"Project Info Table: {len(info_data)}")
-    
-    sales_data = create_project_sales_table()
-    print(f"Project Sales Table: {len(sales_data)}")
-    
-    production_data = create_project_production_table()
-    print(f"Project Production Table: {len(production_data)}")
-    
-    rejection_data = create_rejection_table()
-    print(f"FTA Rejection Table: {len(rejection_data)}")
-    
-    oa_processed_data = create_oa_processed_updated_table()
-    print(f"OA Processed Table: {len(oa_processed_data)}")
-    
-    oa_invoiced_data = create_oa_invoiced_updated_table()
-    print(f"OA Invoiced Table: {len(oa_invoiced_data)}")
-    
-    gm_approved_data = create_approve_for_inspection_updated_table()
-    print(f"GM Approved for Inspection Table: {len(gm_approved_data)}")
-    
-    change_order_data = create_change_order_table()
-    print(f"GM Change Order Table: {len(change_order_data)}")
-    
-    labor_adjustment_data = create_labor_adjustment_table()
-    print(f"GM Labor Adjustment Table: {len(labor_adjustment_data)}")
-    
-    coc_uploaded_data = create_coc_updated_table()
-    print(f"SA COC Uploaded Table: {len(coc_uploaded_data)}")
-    
-    print(f"-------------------------------------------")
-    print(f"-------- CLEANING/PARSING DATASETS --------")
-    print(f"-------------------------------------------")
-    
-    # these are the parsing function reports 
-    sales_workflow_data = cleanup_workflow_dates()
-    print(f"Cleaning Sales Workflow Dates: {len(sales_workflow_data)}")
-    
-    production_workflow_data = cleanup_project_workflow_dates()
-    print(f"Cleaning Production Workflow Dates: {len(production_workflow_data)}")
-    
-    print(f"------------------------------------------")
-    print(f"-------- CREATING DATABASE TABLES --------")
-    print(f"------------------------------------------")
-    
-    # these are the database table function reports 
-    info_table = create_info_database()
-    print(f"Creating Info Table: {len(info_table)}")
-    
-    datestamp_table = create_datestamp_database()
-    print(f"Creating Datestamp Table: {len(datestamp_table)}")
-    
-    workflow_days_table = create_workflow_database()
-    print(f"Creating Workflow Days Table: {len(workflow_days_table)}")
-    print(f"------------------------------------------")
-    create_database_tables()
-    print(f"------------------------------------------")
-    return print(f'Report Complete')
-
-reporting_tool()
-
-
-
-=======
-    datestamp_table.to_csv("data/cleaned_data/project_table.csv", index=False)
-    workflow_table.to_csv("data/cleaned_data/workflow_table.csv", index=False)
-    info_table.to_csv("data/cleaned_data/project_info_table.csv", index=False)
-    
-    return (print(f"Database Tables Created"))
-
 create_database_tables()
->>>>>>> d6f959cdc6a79ff21248f9d1dd0c9895e592b623
 
 def reporting_tool():
     
@@ -828,7 +743,7 @@ def reporting_tool():
     
     workflow_days_table = create_workflow_database()
     print(f"Creating Workflow Days Table: {len(workflow_days_table)}")
-    
+    print(f"------------------------------------------")
     return print(f'Report Complete')
 
 reporting_tool()
