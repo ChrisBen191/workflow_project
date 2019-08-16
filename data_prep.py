@@ -34,9 +34,6 @@ labor_adjustment_data = "./data/raw_datasets/[TVA] GM Labor Adjustment Analysis.
 # imports the 'approved for inspection' GM data currently being tracked
 approved_for_inspection_data = "./data/raw_datasets/Workflow Tracker - GM Approved for Inspection.csv"
 
-# imports the '[TVA] Eagleview Analysis' data
-eagleview_data = "./data/raw_datasets/[TVA] EagleView Analysis.csv"
-
 # imports the 'coc collected' SA data currently being tracked
 coc_collected_data = "./data/raw_datasets/Workflow Tracker - Rep COC Collected.csv" 
 
