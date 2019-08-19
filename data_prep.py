@@ -53,10 +53,10 @@ def create_project_sales_table():
     project_df = pd.read_csv(all_project_data, 
     dtype={'Claim #': str, 'Job #': str, 'Branch': str, 'Claim Status': str}, 
     parse_dates=['Claim # Date', 'FTA Scope. Req Date', 'Submit for Estimate Date',
-          '[OB] Created Scope Calc', '[B] Created Estimate Date',
-          'Job Submittal Date', '[B] - Date Approved by BC', '[OB] Completed',
-          'COC Rcvd Date [A]', 'Job Docs Scanned', 
-          '[B] Sent Invoice Packet to Ins Co','[B] Settled with Insurance'])
+        '[OB] Created Scope Calc', '[B] Created Estimate Date',
+        'Job Submittal Date', '[B] - Date Approved by BC', '[OB] Completed',
+        'COC Rcvd Date [A]', 'Job Docs Scanned', 
+        '[B] Sent Invoice Packet to Ins Co','[B] Settled with Insurance'])
     # having trouble recognizing 'coc' date as 'datetime', manually converted the dtype.
     project_df['COC Rcvd Date [A]'] = pd.to_datetime(project_df['COC Rcvd Date [A]'], errors='coerce')
     
@@ -81,8 +81,8 @@ def create_project_production_table():
         all_production_data, 
         dtype={'Job #': str,'Supplier Name': str,'Building Department': str,'Permit Req?': str},
         parse_dates=['Permit Applied [A]','Order Date','Permit Received','OA Date','Invoice Date',
-      'Ntfd H.O. Dlvry','Dlvry Start','Ntfd H.O. Start','Roof Start','Roof Complete Date',
-      'R4F','Requested Final Insp','Final Inspection Date'])
+    'Ntfd H.O. Dlvry','Dlvry Start','Ntfd H.O. Start','Roof Start','Roof Complete Date',
+    'R4F','Requested Final Insp','Final Inspection Date'])
     
         # removing all duplcates
     production_df = production_df.drop_duplicates(subset='Claim #', keep='first')
@@ -406,7 +406,7 @@ def create_datestamp_database():
         'Claim # Date': 'Rep Agreement Signed','FTA Scope. Req Date': 'Rep Claim Collected','Most Recent Rejection': 'FTA Scope Rejected',
         'Submit for Estimate Date': 'FTA Scope Completed','[B] Created Estimate Date': 'BC Estimate Completed','[OB] Created Scope Calc': 'OB Scope Completed',
         'Job Submittal Date': 'Sup Job Submitted','[B] - Date Approved by BC': 'BC Approved for Production','[OB] Completed': 'OB Order Built',
-        'Permit Applied [A]': 'PA Permit Applied','Order Date': 'GM Order Processed','Permit Received': 'PA Permit Processed',
+        'Permit Applied [A]': 'PA Applied for Permit','Order Date': 'GM Order Processed','Permit Received': 'PA Permit Processed',
         'OA Date': 'PA OA Processed','Invoice Date': 'PA OA Invoiced','Ntfd H.O. Dlvry': 'PA Notify of Delivery',
         'Dlvry Start': 'Delivery Date','Ntfd H.O. Start': 'PA Notify of Start','Roof Complete Date': 'Roof End',
         'R4F': 'GM Approved for Inspection','Requested Final Insp': 'RA Inspection Requested','Final Inspection Date': 'RA Inspection Processed',
@@ -417,7 +417,7 @@ def create_datestamp_database():
     all_project_df = datestamped_workflow_table[[
         'Claim #','Job #','Branch','Claim Status','Rep Agreement Signed',
         'Rep Claim Collected','FTA Scope Completed','FTA Scope Rejected','BC Estimate Completed','OB Scope Completed',
-        'Sup Job Submitted','BC Approved for Production','OB Order Built','GM Order Processed','PA Permit Applied',
+        'Sup Job Submitted','BC Approved for Production','OB Order Built','GM Order Processed','PA Applied for Permit',
         'PA Permit Processed','PA OA Processed','PA OA Invoiced','PA Notify of Delivery','PA Notify of Start',
         'Delivery Date','Roof Start','Roof End','GM Approved for Inspection','GM Change Order Date',
         'GM Labor Adjustment Date','RA Inspection Requested','RA Inspection Processed','Rep COC Collected','SA Job Docs Uploaded',
@@ -486,7 +486,6 @@ def create_workflow_database():
     pa_oa_processed_diff = []
     pa_invoice_diff = []
     gm_approval_diff = []
-    ra_request_inspection_diff = []
     rep_coc_collected_diff = []
     sa_docs_uploaded_diff = []
     bc_project_invoiced_diff = []
@@ -497,6 +496,8 @@ def create_workflow_database():
     pa_permit_processed_diff = []
     pa_notify_delivery_diff = []
     pa_notify_start_diff = []
+    ra_request_inspection_diff = []
+    ra_inspection_processed_diff = []
 
     # saving the 'datestamp database' to a variable to iterate over
     all_project_df = create_datestamp_database()
@@ -595,6 +596,7 @@ def create_workflow_database():
         ob_orderbuild_date_diff = (row['OB Order Built'] - row['BC Approved for Production']).days
         gm_create_order_date_diff = (row['GM Order Processed'] - row['OB Order Built']).days
         ra_requested_inspection_date_diff = (row['RA Inspection Requested'] - row['GM Approved for Inspection']).days
+        ra_inspection_processed_date_diff = (row['RA Inspection Processed'] - row['RA Inspection Requested']).days
         sa_docs_uploaded_date_diff = (row['SA Job Docs Uploaded'] - row['Rep COC Collected']).days
         bc_project_invoiced_date_diff = (row['BC Project Invoiced'] - row['SA Job Docs Uploaded']).days
         bc_project_closed_date_diff = (row['BC Project Closed'] - row['BC Project Invoiced']).days
@@ -603,17 +605,20 @@ def create_workflow_database():
         pa_oa_processed_date_diff = (row['PA OA Processed'] - row['GM Order Processed']).days
 
         # these provide the lead times of tasks not directly impacting the workflow.
-        pa_permit_applied_date_diff = (row['PA Permit Applied'] - row['BC Approved for Production']).days
-        pa_permit_processed_date_diff = (row['PA Permit Processed'] - row['PA Permit Applied']).days
+        pa_permit_applied_date_diff = (row['PA Applied for Permit'] - row['BC Approved for Production']).days
+        pa_permit_processed_date_diff = (row['PA Permit Processed'] - row['PA Applied for Permit']).days
         pa_notify_delivery_date_diff = (row['Delivery Date'] - row['PA Notify of Delivery']).days
         pa_notify_start_date_diff = (row['Roof Start'] - row['PA Notify of Start']).days
 
     ####################################################################################################
         # appending 'date diff' values to lists to create each df column
 
+        # project info
         claim_num.append(row["Claim #"])
         branch_list.append(row['Branch'])
         claim_status_list.append(row['Claim Status'])
+        
+        # workflow related info
         rep_claim_diff.append(rep_claim_date_diff)
         fta_scope_diff.append(fta_date_diff)
         ob_scope_diff.append(ob_scope_date_diff)
@@ -636,11 +641,17 @@ def create_workflow_database():
         pa_notify_delivery_diff.append(pa_notify_delivery_date_diff)
         pa_notify_start_diff.append(pa_notify_start_date_diff)
         ra_request_inspection_diff.append(ra_requested_inspection_date_diff)
+        ra_inspection_processed_diff.append(ra_inspection_processed_date_diff)
+
     ####################################################################################################
 
     # Creating 'Workflow Days' df
     days_df = pd.DataFrame({
+
+        # project info
         "Claim #": claim_num,
+
+        # workflow
         "Rep Collecting Claim": rep_claim_diff,
         "FTA Completing Scope": fta_scope_diff,
         "BC Completing Estimate": bc_estimate_diff,
@@ -649,18 +660,30 @@ def create_workflow_database():
         "BC Approving Job": bc_approval_diff,
         "OB Building Order": ob_order_build_diff,
         "GM Processing Order": gm_create_order_diff,
+        "PA Permit Applied": pa_permit_applied_diff,
+        "PA Permit Processed": pa_permit_processed_diff,
         "PA Processing OA": pa_oa_processed_diff,
         "PA Invoicing OA": pa_invoice_diff,
+        "PA Notified of Delivery": pa_notify_delivery_diff,
+        "PA Notified of Start": pa_notify_start_diff,
         'GM Approving for Inspection': gm_approval_diff,
         'RA Requesting Inspection': ra_request_inspection_diff,
+        'RA Inspection Processed': ra_inspection_processed_diff,
         'Rep Collecting COC': rep_coc_collected_diff,
         'SA Uploading Docs': sa_docs_uploaded_diff,
         'BC Invoicing Project': bc_project_invoiced_diff,
         'BC Closed Project': bc_project_closed_diff
     })
+
+    # creating a list of the columns to use to calculate the 'total days'
+    pipeline_list = [
+        'Rep Collecting Claim', 'FTA Completing Scope', 'BC Completing Estimate', 'OB Completing Scope',
+        'Sup Submitting Job', 'BC Approving Job', 'OB Building Order', 'GM Processing Order',
+        'PA Processing OA', 'PA Invoicing OA', 'GM Approving for Inspection', 'Rep Collecting COC',
+        'SA Uploading Docs', 'BC Invoicing Project', 'BC Closed Project']
+
     # creating a column holding the running tally across a row (project)
-    # can be done because not including 'date diffs' on non-workflow items
-    days_df['Days in Pipeline'] = days_df.sum(axis=1)
+    days_df['Days in Pipeline'] = days_df[pipeline_list].sum(axis=1)
     
     return days_df
 
