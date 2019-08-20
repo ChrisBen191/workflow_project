@@ -1,62 +1,53 @@
 ########## Dependencies ##########
 import pandas as pd
+
 import datetime
 from datetime import datetime
 from datetime import timedelta
-from datetime import date
-
 
 ########## Import Data ##########
 # imports the '[TVA] Workflow Analysis' data
 all_project_data = "./data/raw_datasets/[TVA] Workflow Analysis.csv"
-
 # imports the '[TVA] Project Workflow Analysis' data
 all_production_data = "./data/raw_datasets/[TVA] Project Workflow Analysis.csv"
-
 # imports '[TVA] Project Info Analysis' data
 info_data = "./data/raw_datasets/[TVA] Project Info Analysis.csv"
-
 # imports '[TVA] FTA Scope Analysis' data
 rejection_data = "./data/raw_datasets/[TVA] FTA Scope Analysis.csv"
-
 # imports the 'oa processed' PA data currently being tracked
 oa_processed_data = "./data/raw_datasets/Workflow Tracker - PA OA Processed.csv"
-
 # imports the 'oa invoiced' PA data currently being tracked
 oa_invoiced_data = "./data/raw_datasets/Workflow Tracker - PA OA Invoiced.csv"
-
 # imports '[TVA] GM Change Order Analysis' data
 change_order_data = "./data/raw_datasets/[TVA] GM Change Order Analysis.csv"
-
 # imports '[TVA] GM Labor Order Adjustment Analysis' data
 labor_adjustment_data = "./data/raw_datasets/[TVA] GM Labor Adjustment Analysis.csv"
-
 # imports the 'approved for inspection' GM data currently being tracked
 approved_for_inspection_data = "./data/raw_datasets/Workflow Tracker - GM Approved for Inspection.csv"
-
 # imports the 'coc collected' SA data currently being tracked
 coc_collected_data = "./data/raw_datasets/Workflow Tracker - Rep COC Collected.csv" 
 
-########## Data Cleaning Functions ##########
-
-########## function to create the 'info_df'
-def create_project_info_table():
-    info_df = pd.read_csv(info_data, dtype='str')
-    
-    # removing all duplcates
-    info_df = info_df.drop_duplicates(subset='Claim #', keep='first')
-
-    return info_df
+############################## Data Cleaning Functions ##############################
 
 ########## function to create the 'project_df'
-def create_project_sales_table():
-    project_df = pd.read_csv(all_project_data, 
-    dtype={'Claim #': str, 'Job #': str, 'Branch': str, 'Claim Status': str}, 
-    parse_dates=['Claim # Date', 'FTA Scope. Req Date', 'Submit for Estimate Date',
-        '[OB] Created Scope Calc', '[B] Created Estimate Date',
-        'Job Submittal Date', '[B] - Date Approved by BC', '[OB] Completed',
-        'COC Rcvd Date [A]', 'Job Docs Scanned', 
-        '[B] Sent Invoice Packet to Ins Co','[B] Settled with Insurance'])
+def clean_sales_table():
+    project_df = pd.read_csv(
+        all_project_data, 
+        dtype={'Claim #': str, 'Job #': str, 'Branch': str, 'Claim Status': str}, 
+        parse_dates=[
+            'Claim # Date',
+            'FTA Scope. Req Date',
+            'Submit for Estimate Date',
+            '[OB] Created Scope Calc',
+            '[B] Created Estimate Date',
+            'Job Submittal Date',
+            '[B] - Date Approved by BC',
+            '[OB] Completed',
+            'COC Rcvd Date [A]',
+            'Job Docs Scanned', 
+            '[B] Sent Invoice Packet to Ins Co',
+            '[B] Settled with Insurance'])
+
     # having trouble recognizing 'coc' date as 'datetime', manually converted the dtype.
     project_df['COC Rcvd Date [A]'] = pd.to_datetime(project_df['COC Rcvd Date [A]'], errors='coerce')
     
@@ -65,24 +56,38 @@ def create_project_sales_table():
 
     # storing all floored timestamps in a list
     floored_ob_order_builds = []
+
     # iterating over the 'project_df' to 'floor' or zero out each timestamp
     for index, row in project_df.iterrows():
+
         # zeroing out the hours and minutes, appending value to 'floored' list
         ob_order_builds = row['[OB] Completed'].replace(hour=0, minute=0)
         floored_ob_order_builds.append(ob_order_builds)
+
     # adding the floored list to the 'project_df'
     project_df['[OB] Completed'] = floored_ob_order_builds
 
     return project_df
 
 ########## function to create the 'production_df'
-def create_project_production_table():
+def clean_production_table():
     production_df = pd.read_csv(
         all_production_data, 
         dtype={'Job #': str,'Supplier Name': str,'Building Department': str,'Permit Req?': str},
-        parse_dates=['Permit Applied [A]','Order Date','Permit Received','OA Date','Invoice Date',
-    'Ntfd H.O. Dlvry','Dlvry Start','Ntfd H.O. Start','Roof Start','Roof Complete Date',
-    'R4F','Requested Final Insp','Final Inspection Date'])
+        parse_dates=[
+            'Permit Applied [A]',
+            'Order Date',
+            'Permit Received',
+            'OA Date',
+            'Invoice Date',
+            'Ntfd H.O. Dlvry',
+            'Dlvry Start',
+            'Ntfd H.O. Start',
+            'Roof Start',
+            'Roof Complete Date',
+            'R4F',
+            'Requested Final Insp',
+            'Final Inspection Date'])
     
         # removing all duplcates
     production_df = production_df.drop_duplicates(subset='Claim #', keep='first')
@@ -102,16 +107,28 @@ def create_project_production_table():
 
     return production_df
 
-########## function to create the 'rejection_table_df'
-def create_rejection_table():
+########## function to create the 'info_df'
+def clean_info_table():
+    info_df = pd.read_csv(info_data, dtype='str')
+    
+    # removing all duplcates
+    info_df = info_df.drop_duplicates(subset='Claim #', keep='first')
 
-    rejection_table_df = pd.read_csv(rejection_data, dtype={'Claim #': str},parse_dates=['Created'])
+    return info_df
+
+########## function to create the 'rejection_table_df'
+def clean_rejection_table():
+    rejection_table_df = pd.read_csv(
+        rejection_data, 
+        dtype={'Claim #': str},
+        parse_dates=['Created'])
 
     # storing all floored timestamps in a list
     floored_fta_rejections = []
 
     # iterating over the 'rejection_table_df' to 'floor' or zero out each timestamp
     for index, row in rejection_table_df.iterrows():
+
         # zeroing out the hours and minutes, appending value to 'floored' list
         fta_rejections = row['Created'].replace(hour=0, minute=0)
         floored_fta_rejections.append(fta_rejections)
@@ -135,8 +152,12 @@ def create_rejection_table():
     return scope_rejection_df
 
 ########## function to create the updated 'oa_processed_df'
-def create_oa_processed_updated_table():
-    oa_processed_df = pd.read_csv(oa_processed_data, dtype={'Job #': str}, parse_dates=['Updated'], usecols=['Job #', 'Updated'])
+def clean_oa_processed_table():
+    oa_processed_df = pd.read_csv(
+        oa_processed_data, 
+        dtype={'Job #': str}, 
+        parse_dates=['Updated'], 
+        usecols=['Job #', 'Updated'])
 
     # storing all floored timestamps in a list
     floored_oa_processed = []
@@ -149,12 +170,16 @@ def create_oa_processed_updated_table():
     # adding the floored list to the 'oa_processed_df'
     oa_processed_df['Updated'] = floored_oa_processed
     oa_processed_df = oa_processed_df.rename(columns={'Updated':'Updated OA Processed'})
-    
+
     return oa_processed_df
 
 ########## function to create the updated 'oa_invoiced_df'
-def create_oa_invoiced_updated_table():
-    oa_invoiced_df = pd.read_csv(oa_invoiced_data, dtype={'Job #': str}, parse_dates=['Updated'], usecols=['Job #', 'Updated'])
+def clean_oa_invoiced_table():
+    oa_invoiced_df = pd.read_csv(
+        oa_invoiced_data, 
+        dtype={'Job #': str},
+        parse_dates=['Updated'],
+        usecols=['Job #', 'Updated'])
 
     # storing all floored timestamps in a list
     floored_oa_invoiced = []
@@ -171,8 +196,12 @@ def create_oa_invoiced_updated_table():
     return oa_invoiced_df
 
 ########## function to create the 'approve_for_inspection_df'
-def create_approve_for_inspection_updated_table():
-    approve_for_inspection_df = pd.read_csv(approved_for_inspection_data, dtype={'Job #': str}, parse_dates=['Updated'], usecols=['Job #','Updated'])
+def clean_approve_for_inspection_table():
+    approve_for_inspection_df = pd.read_csv(
+        approved_for_inspection_data, 
+        dtype={'Job #': str}, 
+        parse_dates=['Updated'], 
+        usecols=['Job #','Updated'])
 
     # storing all floored timestamps in a list
     floored_approve_for_inspection = []
@@ -189,8 +218,11 @@ def create_approve_for_inspection_updated_table():
     return approve_for_inspection_df
 
 ########## function to create the 'change_order_df'
-def create_change_order_table():
-    change_order_df = pd.read_csv(change_order_data, dtype={'Job #': str}, parse_dates=['Created'])
+def clean_change_order_table():
+    change_order_df = pd.read_csv(
+        change_order_data, 
+        dtype={'Job #': str}, 
+        parse_dates=['Created'])
 
     # storing all floored timestamps in a list
     floored_change_order = []
@@ -220,9 +252,12 @@ def create_change_order_table():
     return change_order_df
 
 ########## function to create the 'labor_adjustment_df'
-def create_labor_adjustment_table():
+def clean_labor_adjustment_table():
     # GM Labor Adjustment Analysis
-    labor_adjustment_df = pd.read_csv(labor_adjustment_data, dtype={'Order ID': str}, parse_dates=['Created'])
+    labor_adjustment_df = pd.read_csv(
+        labor_adjustment_data, 
+        dtype={'Order ID': str}, 
+        parse_dates=['Created'])
 
     # storing all floored timestamps in a list
     floored_labor_adjustment = []
@@ -264,7 +299,7 @@ def create_labor_adjustment_table():
     return labor_adjustment_df
 
 ########## function to create the updated 'coc_collected_df'
-def create_coc_updated_table():
+def clean_coc_table():
     coc_collected_df = pd.read_csv(coc_collected_data, dtype={'Job #': str}, parse_dates=['Updated'], usecols=['Claim #', 'Job #', 'Updated'])
 
     # storing all floored timestamps in a list
@@ -288,8 +323,8 @@ def create_coc_updated_table():
 ############### function for preparing the 'sales workflow' table ###############
 def cleanup_workflow_dates():
     # storing the table function dfs as variables
-    project_table = create_project_sales_table()
-    updated_coc_table = create_coc_updated_table()
+    project_table = clean_sales_table()
+    updated_coc_table = clean_coc_table()
 
     # merging the project and 'updated coc' data
     cleanup_data = project_table.merge(updated_coc_table, how='left', on=['Claim #','Job #'])
@@ -321,10 +356,10 @@ def cleanup_workflow_dates():
 ############### function for preparing the 'production workflow' table ###############
 def cleanup_project_workflow_dates():
     # storing the table function dfs as variables
-    project_table = create_project_production_table()
-    updated_oa_processed_table = create_oa_processed_updated_table()
-    updated_oa_invoiced_table = create_oa_invoiced_updated_table()
-    updated_approved_for_inspection_table = create_approve_for_inspection_updated_table()
+    project_table = clean_production_table()
+    updated_oa_processed_table = clean_oa_processed_table()
+    updated_oa_invoiced_table = clean_oa_invoiced_table()
+    updated_approved_for_inspection_table = clean_approve_for_inspection_table()
 
     # merging the 'oa_processed', 'oa_invoiced', and 'approved_for_inspection' tables
     project_table = project_table.merge(
@@ -341,9 +376,10 @@ def cleanup_project_workflow_dates():
 
         # if there is an 'updated oa processed' date...
         if row['Updated OA Processed'] == row['Updated OA Processed']:
-            # use the updated oa processed date
+            # use the updated oa processed date from googlesheet
             real_oa_processed_date = row['Updated OA Processed']
             parsed_oa_processed_dates.append(real_oa_processed_date)
+
         else:
             # if not use the trackvia oa processed date
             real_oa_processed_date = row['OA Date']
@@ -352,9 +388,10 @@ def cleanup_project_workflow_dates():
 
         # if there is an 'updated oa invoiced' date...
         if row['Updated OA Invoiced'] == row['Updated OA Invoiced']:
-            # use the updated oa invoiced date
+            # use the updated oa invoiced date from googlesheet
             real_oa_invoiced_date = row['Updated OA Invoiced']
             parsed_oa_invoiced_dates.append(real_oa_invoiced_date)
+
         else:
             # if not use the trackvia oa invoiced date
             real_oa_invoiced_date = row['Invoice Date']
@@ -363,8 +400,10 @@ def cleanup_project_workflow_dates():
 
         # if there is an 'updated approved for inspection' date...
         if row['Updated R4F'] == row['Updated R4F']:
+            # use the updated approved for inspection date from googlesheet
             real_approved_for_inspection_date = row['Updated R4F']
             parsed_approved_for_inspection_dates.append(real_approved_for_inspection_date)
+
         else:
             # if not use the trackvia oa invoiced date
             real_approved_for_inspection_date = row['R4F']
@@ -378,6 +417,7 @@ def cleanup_project_workflow_dates():
     # deleting columns not needed in the production datestamp info
     del project_table['Updated OA Processed'], project_table['Updated OA Invoiced'], project_table['Updated R4F'],project_table['Supplier Name'], project_table['Building Department'], project_table['Permit Req?'], project_table['On Hold?'], project_table['Branch']
     
+
     return project_table
 
 ################################### Database Functions ###################################
@@ -387,9 +427,9 @@ def create_datestamp_database():
     # assigning the functions to variables to be able to merge them
     production_table = cleanup_project_workflow_dates()
     sales_table = cleanup_workflow_dates()
-    reject_table = create_rejection_table()
-    change_order_table = create_change_order_table()
-    labor_adjustment_table = create_labor_adjustment_table()
+    reject_table = clean_rejection_table()
+    change_order_table = clean_change_order_table()
+    labor_adjustment_table = clean_labor_adjustment_table()
 
     del reject_table['Scope Rejections']
     del labor_adjustment_table['Labor Adjustments']
@@ -403,37 +443,79 @@ def create_datestamp_database():
 
     # renaming the combined data
     datestamped_workflow_table = datestamped_workflow_table.rename(columns={
-        'Claim # Date': 'Rep Agreement Signed','FTA Scope. Req Date': 'Rep Claim Collected','Most Recent Rejection': 'FTA Scope Rejected',
-        'Submit for Estimate Date': 'FTA Scope Completed','[B] Created Estimate Date': 'BC Estimate Completed','[OB] Created Scope Calc': 'OB Scope Completed',
-        'Job Submittal Date': 'Sup Job Submitted','[B] - Date Approved by BC': 'BC Approved for Production','[OB] Completed': 'OB Order Built',
-        'Permit Applied [A]': 'PA Applied for Permit','Order Date': 'GM Order Processed','Permit Received': 'PA Permit Processed',
-        'OA Date': 'PA OA Processed','Invoice Date': 'PA OA Invoiced','Ntfd H.O. Dlvry': 'PA Notify of Delivery',
-        'Dlvry Start': 'Delivery Date','Ntfd H.O. Start': 'PA Notify of Start','Roof Complete Date': 'Roof End',
-        'R4F': 'GM Approved for Inspection','Requested Final Insp': 'RA Inspection Requested','Final Inspection Date': 'RA Inspection Processed',
-        'COC Rcvd Date [A]': 'Rep COC Collected','Job Docs Scanned': 'SA Job Docs Uploaded','[B] Sent Invoice Packet to Ins Co': 'BC Project Invoiced',
-        '[B] Settled with Insurance': 'BC Project Closed'})
+        'Claim # Date': 'Rep Agreement Signed Date',
+        'FTA Scope. Req Date': 'Rep Claim Collected Date',
+        'Most Recent Rejection': 'FTA Scope Rejected Date',
+        'Submit for Estimate Date': 'FTA Scope Completed Date',
+        '[B] Created Estimate Date': 'BC Estimate Completed Date',
+        '[OB] Created Scope Calc': 'OB Scope Completed Date',
+        'Job Submittal Date': 'Sup Job Submitted Date',
+        '[B] - Date Approved by BC': 'BC Approved for Production Date',
+        '[OB] Completed': 'OB Order Built Date',
+        'Permit Applied [A]': 'PA Permit Applied Date',
+        'Order Date': 'GM Order Processed Date',
+        'Permit Received': 'PA Permit Processed Date',
+        'OA Date': 'PA OA Processed Date',
+        'Invoice Date': 'PA OA Invoiced Date',
+        'Ntfd H.O. Dlvry': 'PA Notify of Delivery Date',
+        'Dlvry Start': 'Delivery Date',
+        'Ntfd H.O. Start': 'PA Notify of Start Date',
+        'Roof Start': 'Roof Start Date',
+        'Roof Complete Date': 'Roof End Date',
+        'R4F': 'GM Approved for Inspection Date',
+        'Requested Final Insp': 'RA Inspection Requested Date',
+        'Final Inspection Date': 'RA Inspection Processed Date',
+        'COC Rcvd Date [A]': 'Rep COC Collected Date',
+        'Job Docs Scanned': 'SA Job Docs Uploaded Date',
+        '[B] Sent Invoice Packet to Ins Co': 'BC Project Invoiced Date',
+        '[B] Settled with Insurance': 'BC Project Closed Date'})
 
     # Organizing combined Data to follow Workflow
     all_project_df = datestamped_workflow_table[[
-        'Claim #','Job #','Branch','Claim Status','Rep Agreement Signed',
-        'Rep Claim Collected','FTA Scope Completed','FTA Scope Rejected','BC Estimate Completed','OB Scope Completed',
-        'Sup Job Submitted','BC Approved for Production','OB Order Built','GM Order Processed','PA Applied for Permit',
-        'PA Permit Processed','PA OA Processed','PA OA Invoiced','PA Notify of Delivery','PA Notify of Start',
-        'Delivery Date','Roof Start','Roof End','GM Approved for Inspection','GM Change Order Date',
-        'GM Labor Adjustment Date','RA Inspection Requested','RA Inspection Processed','Rep COC Collected','SA Job Docs Uploaded',
-        'BC Project Invoiced','BC Project Closed']]
-    
+        'Claim #',
+        'Job #',
+        'Branch',
+        'Claim Status',
+        'Rep Agreement Signed Date',
+        'Rep Claim Collected Date',
+        'FTA Scope Completed Date',
+        'FTA Scope Rejected Date',
+        'BC Estimate Completed Date',
+        'OB Scope Completed Date',
+        'Sup Job Submitted Date',
+        'BC Approved for Production Date',
+        'OB Order Built Date',
+        'GM Order Processed Date',
+        'PA Permit Applied Date',
+        'PA Permit Processed Date',
+        'PA OA Processed Date',
+        'PA OA Invoiced Date',
+        'PA Notify of Delivery Date',
+        'PA Notify of Start Date',
+        'Delivery Date',
+        'Roof Start Date',
+        'Roof End Date',
+        'GM Approved for Inspection Date',
+        'GM Change Order Date',
+        'GM Labor Adjustment Date',
+        'RA Inspection Requested Date',
+        'RA Inspection Processed Date',
+        'Rep COC Collected Date',
+        'SA Job Docs Uploaded Date',
+        'BC Project Invoiced Date',
+        'BC Project Closed Date']]
+
     return all_project_df
 
 # creating the project info database
 def create_info_database():
 
     # assigning the functions to variables to be able to merge them
-    info_table = create_project_info_table()
-    production_table = create_project_production_table()
-    reject_table = create_rejection_table()
-    change_order_table = create_change_order_table()
-    labor_adjustment_table = create_labor_adjustment_table()
+    info_table = clean_info_table()
+    production_table = clean_production_table()
+    reject_table = clean_rejection_table()
+    change_order_table = clean_change_order_table()
+    labor_adjustment_table = clean_labor_adjustment_table()
 
     # creating smaller sets of data to merge to the 'info_table'
     production_info = production_table[['Job #', 'Supplier Name', 'Building Department', 'Permit Req?']]
@@ -506,109 +588,109 @@ def create_workflow_database():
     for index, row in all_project_df.iterrows():
 
         # creating 'date_diff' variables for each step in the workflow
-        rep_claim_date_diff = float((row['Rep Claim Collected'] - row['Rep Agreement Signed']).days)
+        rep_claim_date_diff = float((row['Rep Claim Collected Date'] - row['Rep Agreement Signed Date']).days)
 
         # if the bc estimate was created prior to July 16th...
-        if row['BC Estimate Completed'] <= datetime(2019, 7, 15):
+        if row['BC Estimate Completed Date'] <= datetime(2019, 7, 15):
 
             # and if the record did NOT had the FTA Scope Rejected...
-            if row['FTA Scope Rejected'] != row['FTA Scope Rejected']:
+            if row['FTA Scope Rejected Date'] != row['FTA Scope Rejected Date']:
 
-                # then compare the date diffs using the 'fta scope completed' date field
-                fta_date_diff = (row['FTA Scope Completed'] - row['Rep Claim Collected']).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Completed']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - row['OB Scope Completed']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['BC Estimate Completed']).days
+                # then compare the date diffs using the 'FTA Scope Completed' date field
+                fta_date_diff = (row['FTA Scope Completed Date'] - row['Rep Claim Collected Date']).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['FTA Scope Completed Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - row['OB Scope Completed Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['BC Estimate Completed Date']).days
 
             # but if the record has had the FTA Scope Rejected...
             else:
                 # then compare the 'FTA Scope rejected' date field
-                fta_date_diff = (row['FTA Scope Rejected'] - row['Rep Claim Collected']).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Rejected']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - row['OB Scope Completed']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
+                fta_date_diff = (row['FTA Scope Rejected Date'] - row['Rep Claim Collected Date']).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['FTA Scope Rejected Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - row['OB Scope Completed Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['OB Scope Completed Date']).days
 
         # if the bc estimate was addressed during the 'blip' on 7/16-7/17...
-        elif row['BC Estimate Completed'] == datetime(2019, 7, 16) or row['BC Estimate Completed'] == datetime(2019, 7, 17):
+        elif row['BC Estimate Completed Date'] == datetime(2019, 7, 16) or row['BC Estimate Completed Date'] == datetime(2019, 7, 17):
 
             # and if the record did NOT had the FTA Scope Rejected...
-            if row['FTA Scope Rejected'] != row['FTA Scope Rejected']:
+            if row['FTA Scope Rejected Date'] != row['FTA Scope Rejected Date']:
                 # then compare the 'bc estimate' to the 'blip' date, and the 'ob scope' date to the new 'bc date'
-                fta_date_diff = (row['FTA Scope Completed'] - row['Rep Claim Collected']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - datetime(2019, 7, 16)).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['BC Estimate Completed']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
+                fta_date_diff = (row['FTA Scope Completed Date'] - row['Rep Claim Collected Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - datetime(2019, 7, 16)).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['BC Estimate Completed Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['OB Scope Completed Date']).days
 
             # but if the record has had the FTA Scope rejected...
             else:
                 # then compare the 'fta scope rejected' date field
-                fta_date_diff = (row['FTA Scope Rejected'] - row['Rep Claim Collected']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - datetime(2019, 7, 16)).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Rejected']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
+                fta_date_diff = (row['FTA Scope Rejected Date'] - row['Rep Claim Collected Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - datetime(2019, 7, 16)).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['FTA Scope Rejected Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['OB Scope Completed Date']).days
 
         # if the bc estimate was created after the 'blip'...
         else:
             # and if the record did NOT had the FTA Scope Rejected...
-            if row['FTA Scope Rejected'] != row['FTA Scope Rejected']:
+            if row['FTA Scope Rejected Date'] != row['FTA Scope Rejected Date']:
                 # then compare the 'fta scope completed' date field
-                fta_date_diff = (row['FTA Scope Completed'] - row['Rep Claim Collected']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - row['FTA Scope Completed']).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['BC Estimate Completed']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
+                fta_date_diff = (row['FTA Scope Completed Date'] - row['Rep Claim Collected Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - row['FTA Scope Completed Date']).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['BC Estimate Completed Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['OB Scope Completed Date']).days
 
             else:
                 # then compare the 'fta scope rejected' date field
-                fta_date_diff = (row['FTA Scope Rejected'] - row['Rep Claim Collected']).days
-                bc_estimate_date_diff = (row['BC Estimate Completed'] - row['FTA Scope Completed']).days
-                ob_scope_date_diff = (row['OB Scope Completed'] - row['FTA Scope Rejected']).days
-                sup_pfynr_date_diff = (row['Sup Job Submitted'] - row['OB Scope Completed']).days
+                fta_date_diff = (row['FTA Scope Rejected Date'] - row['Rep Claim Collected Date']).days
+                bc_estimate_date_diff = (row['BC Estimate Completed Date'] - row['FTA Scope Completed Date']).days
+                ob_scope_date_diff = (row['OB Scope Completed Date'] - row['FTA Scope Rejected Date']).days
+                sup_pfynr_date_diff = (row['Sup Job Submitted Date'] - row['OB Scope Completed Date']).days
 
         # due to manual OA 'Processed' and 'Invoice' date fields, PAs have been recording false dates...
-        if row['PA OA Invoiced'] < row['PA OA Processed']:
+        if row['PA OA Invoiced Date'] < row['PA OA Processed Date']:
 
             # ...which provide no advantage to the project.
-            row['PA OA Invoiced'] = row['PA OA Processed'] + timedelta(days=1)
+            row['PA OA Invoiced Date'] = row['PA OA Processed Date'] + timedelta(days=1)
 
         # OAs can't be invoiced before they have been processed (approved)
-        pa_invoice_date_diff = (row['PA OA Invoiced'] - row['PA OA Processed']).days
+        pa_invoice_date_diff = (row['PA OA Invoiced Date'] - row['PA OA Processed Date']).days
 
         # due to manual 'Approved for inspection' (R4F) date field, GMs have been recording false dates...
-        if row['GM Approved for Inspection'] < row['Roof End']:
+        if row['GM Approved for Inspection Date'] < row['Roof End Date']:
 
             # ...which provide no advantage to the project; those will be reset to the day after the build.
-            row['GM Approved for Inspection'] = row['Roof End'] + timedelta(days=1)
+            row['GM Approved for Inspection Date'] = row['Roof End Date'] + timedelta(days=1)
 
         # roofs can't be approved for inspection prior to the roof being built
-        gm_approval_date_diff = (row['GM Approved for Inspection'] - row['Roof End']).days
+        gm_approval_date_diff = (row['GM Approved for Inspection Date'] - row['Roof End Date']).days
 
         # due to manual 'COC Collected' (COC Rcvd [A]) date field, SAs have been recording false dates...
-        if row['Rep COC Collected'] < row['Roof End']:
+        if row['Rep COC Collected Date'] < row['Roof End Date']:
 
             # ...these will be reset for after the build.
-            row['Rep COC Collected'] = row['Roof End'] + timedelta(days=1)
+            row['Rep COC Collected Date'] = row['Roof End Date'] + timedelta(days=1)
 
         # coc's can't be collected until after the roof is built, not before
-        rep_coc_collected_date_diff = (row['Rep COC Collected'] - row['Roof End']).days
+        rep_coc_collected_date_diff = (row['Rep COC Collected Date'] - row['Roof End Date']).days
 
         # these dates do not have any special circumstances and can be directly compared
-        bc_approval_date_diff = (row['BC Approved for Production'] - row['Sup Job Submitted']).days
-        ob_orderbuild_date_diff = (row['OB Order Built'] - row['BC Approved for Production']).days
-        gm_create_order_date_diff = (row['GM Order Processed'] - row['OB Order Built']).days
-        ra_requested_inspection_date_diff = (row['RA Inspection Requested'] - row['GM Approved for Inspection']).days
-        ra_inspection_processed_date_diff = (row['RA Inspection Processed'] - row['RA Inspection Requested']).days
-        sa_docs_uploaded_date_diff = (row['SA Job Docs Uploaded'] - row['Rep COC Collected']).days
-        bc_project_invoiced_date_diff = (row['BC Project Invoiced'] - row['SA Job Docs Uploaded']).days
-        bc_project_closed_date_diff = (row['BC Project Closed'] - row['BC Project Invoiced']).days
+        bc_approval_date_diff = (row['BC Approved for Production Date'] - row['Sup Job Submitted Date']).days
+        ob_orderbuild_date_diff = (row['OB Order Built Date'] - row['BC Approved for Production Date']).days
+        gm_create_order_date_diff = (row['GM Order Processed Date'] - row['OB Order Built Date']).days
+        ra_requested_inspection_date_diff = (row['RA Inspection Requested Date'] - row['GM Approved for Inspection Date']).days
+        ra_inspection_processed_date_diff = (row['RA Inspection Processed Date'] - row['RA Inspection Requested Date']).days
+        sa_docs_uploaded_date_diff = (row['SA Job Docs Uploaded Date'] - row['Rep COC Collected Date']).days
+        bc_project_invoiced_date_diff = (row['BC Project Invoiced Date'] - row['SA Job Docs Uploaded Date']).days
+        bc_project_closed_date_diff = (row['BC Project Closed Date'] - row['BC Project Invoiced Date']).days
 
         # these dates are manual, outliers are due to incorrect / false data entry
-        pa_oa_processed_date_diff = (row['PA OA Processed'] - row['GM Order Processed']).days
+        pa_oa_processed_date_diff = (row['PA OA Processed Date'] - row['GM Order Processed Date']).days
 
         # these provide the lead times of tasks not directly impacting the workflow.
-        pa_permit_applied_date_diff = (row['PA Applied for Permit'] - row['BC Approved for Production']).days
-        pa_permit_processed_date_diff = (row['PA Permit Processed'] - row['PA Applied for Permit']).days
-        pa_notify_delivery_date_diff = (row['Delivery Date'] - row['PA Notify of Delivery']).days
-        pa_notify_start_date_diff = (row['Roof Start'] - row['PA Notify of Start']).days
+        pa_permit_applied_date_diff = (row['PA Permit Applied Date'] - row['BC Approved for Production Date']).days
+        pa_permit_processed_date_diff = (row['PA Permit Processed Date'] - row['PA Permit Applied Date']).days
+        pa_notify_delivery_date_diff = (row['Delivery Date'] - row['PA Notify of Delivery Date']).days
+        pa_notify_start_date_diff = (row['Roof Start Date'] - row['PA Notify of Start Date']).days
 
     ####################################################################################################
         # appending 'date diff' values to lists to create each df column
@@ -652,44 +734,45 @@ def create_workflow_database():
         "Claim #": claim_num,
 
         # workflow
-        "Rep Collecting Claim": rep_claim_diff,
-        "FTA Completing Scope": fta_scope_diff,
-        "BC Completing Estimate": bc_estimate_diff,
-        "OB Completing Scope": ob_scope_diff,
-        "Sup Submitting Job": sup_pfynr_diff,
-        "BC Approving Job": bc_approval_diff,
-        "OB Building Order": ob_order_build_diff,
-        "GM Processing Order": gm_create_order_diff,
-        "PA Permit Applied": pa_permit_applied_diff,
-        "PA Permit Processed": pa_permit_processed_diff,
-        "PA Processing OA": pa_oa_processed_diff,
-        "PA Invoicing OA": pa_invoice_diff,
+        "Rep Collected Claim": rep_claim_diff,
+        "FTA Completed Scope": fta_scope_diff,
+        "BC Completed Estimate": bc_estimate_diff,
+        "OB Completed Scope": ob_scope_diff,
+        "Sup Submitted Job": sup_pfynr_diff,
+        "BC Approved Job": bc_approval_diff,
+        "OB Built Order": ob_order_build_diff,
+        "GM Processed Order": gm_create_order_diff,
+        "PA Applied for Permit": pa_permit_applied_diff,
+        "PA Processed Permit": pa_permit_processed_diff,
+        "PA Processed OA": pa_oa_processed_diff,
+        "PA Invoiced OA": pa_invoice_diff,
         "PA Notified of Delivery": pa_notify_delivery_diff,
         "PA Notified of Start": pa_notify_start_diff,
-        'GM Approving for Inspection': gm_approval_diff,
-        'RA Requesting Inspection': ra_request_inspection_diff,
-        'RA Inspection Processed': ra_inspection_processed_diff,
-        'Rep Collecting COC': rep_coc_collected_diff,
-        'SA Uploading Docs': sa_docs_uploaded_diff,
-        'BC Invoicing Project': bc_project_invoiced_diff,
+        'GM Approved for Inspection': gm_approval_diff,
+        'RA Requested Inspection': ra_request_inspection_diff,
+        'RA Processed Inspection': ra_inspection_processed_diff,
+        'Rep Collected COC': rep_coc_collected_diff,
+        'SA Uploaded Docs': sa_docs_uploaded_diff,
+        'BC Invoiced Project': bc_project_invoiced_diff,
         'BC Closed Project': bc_project_closed_diff
     })
 
     # creating a list of the columns to use to calculate the 'total days'
     pipeline_list = [
-        'Rep Collecting Claim', 'FTA Completing Scope', 'BC Completing Estimate', 'OB Completing Scope',
-        'Sup Submitting Job', 'BC Approving Job', 'OB Building Order', 'GM Processing Order',
-        'PA Processing OA', 'PA Invoicing OA', 'GM Approving for Inspection', 'Rep Collecting COC',
-        'SA Uploading Docs', 'BC Invoicing Project', 'BC Closed Project']
+        'Rep Collected Claim', 'FTA Completed Scope', 'BC Completed Estimate', 'OB Completed Scope',
+        'Sup Submitted Job', 'BC Approved Job', 'OB Built Order', 'GM Processed Order',
+        'PA Processed OA', 'PA Invoiced OA', 'GM Approved for Inspection', 'Rep Collected COC',
+        'SA Uploaded Docs', 'BC Invoiced Project', 'BC Closed Project']
 
     # creating a column holding the running tally across a row (project)
     days_df['Days in Pipeline'] = days_df[pipeline_list].sum(axis=1)
-    
+
     return days_df
 
 ############### Output Function ###############
 def create_database_tables():
-
+    clean_dataset_dict = {}
+    
     datestamp_table = create_datestamp_database()
     workflow_table = create_workflow_database()
     info_table = create_info_database()
@@ -697,8 +780,8 @@ def create_database_tables():
     datestamp_table.to_csv("data/database_tables/project_table.csv", index=False)
     workflow_table.to_csv("data/database_tables/workflow_table.csv", index=False)
     info_table.to_csv("data/database_tables/project_info_table.csv", index=False)
-    
-    return (print(f"Database Tables Created"))
+
+    return print('Databases Created')
 
 create_database_tables()
 
@@ -709,34 +792,34 @@ def reporting_tool():
     print(f"---------------------------------------------")
     
     # these are data importing/creating reports 
-    info_data = create_project_info_table()
+    info_data = clean_info_table()
     print(f"Project Info Table: {len(info_data)}")
     
-    sales_data = create_project_sales_table()
+    sales_data = clean_sales_table()
     print(f"Project Sales Table: {len(sales_data)}")
     
-    production_data = create_project_production_table()
+    production_data = clean_production_table()
     print(f"Project Production Table: {len(production_data)}")
     
-    rejection_data = create_rejection_table()
+    rejection_data = clean_rejection_table()
     print(f"FTA Rejection Table: {len(rejection_data)}")
     
-    oa_processed_data = create_oa_processed_updated_table()
+    oa_processed_data = clean_oa_processed_table()
     print(f"OA Processed Table: {len(oa_processed_data)}")
     
-    oa_invoiced_data = create_oa_invoiced_updated_table()
+    oa_invoiced_data = clean_oa_invoiced_table()
     print(f"OA Invoiced Table: {len(oa_invoiced_data)}")
     
-    gm_approved_data = create_approve_for_inspection_updated_table()
+    gm_approved_data = clean_approve_for_inspection_table()
     print(f"GM Approved for Inspection Table: {len(gm_approved_data)}")
     
-    change_order_data = create_change_order_table()
+    change_order_data = clean_change_order_table()
     print(f"GM Change Order Table: {len(change_order_data)}")
     
-    labor_adjustment_data = create_labor_adjustment_table()
+    labor_adjustment_data = clean_labor_adjustment_table()
     print(f"GM Labor Adjustment Table: {len(labor_adjustment_data)}")
     
-    coc_uploaded_data = create_coc_updated_table()
+    coc_uploaded_data = clean_coc_table()
     print(f"SA COC Uploaded Table: {len(coc_uploaded_data)}")
     
     print(f"-------------------------------------------")
