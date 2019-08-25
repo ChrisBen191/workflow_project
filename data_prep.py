@@ -302,6 +302,9 @@ def clean_labor_adjustment_table():
 def clean_coc_table():
     coc_collected_df = pd.read_csv(coc_collected_data, dtype={'Job #': str}, parse_dates=['Updated'], usecols=['Claim #', 'Job #', 'Updated'])
 
+    # removing all duplcates
+    coc_collected_df = coc_collected_df.drop_duplicates(subset='Claim #', keep='first')
+
     # storing all floored timestamps in a list
     floored_coc_collected = []
 
