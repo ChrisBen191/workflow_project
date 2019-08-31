@@ -95,7 +95,7 @@ def clean_production_table():
             'Final Inspection Date'])
     
     # removing all duplcates
-    production_df = production_df.drop_duplicates(subset='Claim #', keep='first')
+    production_df = production_df.drop_duplicates(subset='Job #', keep='first')
 
     # storing all floored timestamps in a list
     floored_pa_oa_processed = []
@@ -1329,16 +1329,16 @@ class Branch_Workflow:
         wf_days_analysis = workflow_data_df[(pipeline_dict[self.pipeline]['workflow_table'][1])]
 
         workflow_mean = wf_days_analysis.mean()
-        workflow_analysis_dict['mean'] = round(workflow_mean, 2)
+        workflow_analysis_dict['average_days'] = round(workflow_mean, 2)
         
         workflow_min = wf_days_analysis.min()
-        workflow_analysis_dict['min'] = workflow_min
+        workflow_analysis_dict['min_days'] = workflow_min
         
         workflow_max = wf_days_analysis.max()
-        workflow_analysis_dict['max'] = workflow_max
+        workflow_analysis_dict['max_days'] = workflow_max
         
         workflow_median = wf_days_analysis.median()
-        workflow_analysis_dict['median'] = workflow_median
+        workflow_analysis_dict['median_days'] = workflow_median
         
         workflow_std = wf_days_analysis.std()
         workflow_analysis_dict['std'] = round(workflow_std, 2)
@@ -1397,7 +1397,7 @@ for workflow in workflow_list:
 workflow_aggregrate_df = pd.DataFrame.from_dict(workflow_aggregrate_list)
 
 # reorganizing the df
-workflow_aggregrate_df = workflow_aggregrate_df[['branch', 'workflow', 'min', 'mean', 'median', 'max', 'std']]
+workflow_aggregrate_df = workflow_aggregrate_df[['branch', 'workflow', 'min_days', 'average_days', 'median_days', 'max_days', 'std']]
 
 # sending the df to it's own table in MySQL
 workflow_aggregrate_df.to_sql(name='pipeline aggregrates',con=engine,if_exists='replace')
